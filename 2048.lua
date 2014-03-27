@@ -1,9 +1,43 @@
--- created by coolsa. ver 1.0
+-- created by coolsa. ver 1.4
 
+local function win(area)
+    can=false
+    for a=1,4 do
+        for b=1,4 do
+            if area[a][b]>=11 then
+                can=true
+            end
+        end
+    end
+    return can
+end
 
 local function drawPix( xPos, yPos )
 	term.setCursorPos(xPos, yPos)
 	term.write(" ")
+end
+
+local function compr(old,new)
+    c=0
+    for a=1,4 do
+        for b=1,4 do
+            if old[a][b]==new[a][b] then
+                c=c+1
+            end
+        end
+    end
+    if c==16 then return true else return false end
+end
+
+local function cln(cln)
+    c={}
+    for a=1,4 do
+        c[a]={}
+        for b=1,4 do
+            c[a][b]=cln[a][b]
+        end
+    end
+    return c
 end
 
 local function randVal()
@@ -20,7 +54,7 @@ local function randTile(area)
         x=math.random(4)
         y=math.random(4)
         val=randVal()
-        if (area[x][y]==0) then
+        if area[x][y]==0 then
             break
         elseif area[x][y]~=0 then
             i=i+1
@@ -32,7 +66,7 @@ local function randTile(area)
     if i>=100 then
         x,y,val=0,0,"nope"
     end
-    return x,y,val,i
+    return x,y,val
 end
 
 function board()
@@ -185,30 +219,30 @@ function meldLeft(ar)
 end
 
 board=board()
-
+for i=1,2 do
+    a,b,val=randTile(board)
+    board[a][b]=val
+end
 while true do
+    oboard=cln(board)
     local event,pra=os.pullEvent()
     term.clear()
     if pra==14 then 
         break
     elseif pra==200 then
         board=meldUp(board)
-        a,b,val,stop=randTile(board)
-        board[a][b]=val
     elseif pra==205 then
         board=meldLeft(board)
-        a,b,val,stop=randTile(board)
-        board[a][b]=val
     elseif pra==203 then
         board=meldRight(board)
-        a,b,val,stop=randTile(board)
-        board[a][b]=val
     elseif pra==208 then
         board=meldDown(board)
-        a,b,val,stop=randTile(board)
-        board[a][b]=val
     end
-
+    
+    if compr(oboard,board)==false then
+       a,b,val=randTile(board)
+       board[a][b]=val
+    end
     for y=1,4 do
         for x=1,4 do
             term.setCursorPos(x*5-3,y*4-2)
@@ -219,9 +253,14 @@ while true do
             end
         end
     end
+    if win(board) then
+        term.setCursorPos(1,16)
+        term.write("you win!")
+    end
 end
---backspace = 14
---up = 200      1
---left 203      2
---right 205     3
---down = 208    4 
+term.setCursorPos(1,1)
+--backspace = 14 exit.
+--up = 200       1
+--left 203       2
+--right 205      3
+--down = 208     4 
